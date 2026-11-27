@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/configure-pages@v5
+      - run: pnpm install --frozen-lockfile
+      - name: Snapshot content from Turso
+        run: node scripts/snapshot.mjs
+        env:
+          TURSO_URL: ${{ secrets.TURSO_URL }}
+          TURSO_TOKEN: ${{ secrets.TURSO_TOKEN }}
+      - name: Resolve Pages base path
+        env:
+          CUSTOM_BASE: ${{ vars.VITE_BASE }}
+          CUSTOM_SITE_URL: ${{ vars.VITE_SITE_URL }}
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          NAME="${GITHUB_REPOSITORY#*/}"
+          if [ "${NAME}" = "${OWNER}.github.io" ]; then
+            DEFAULT_SITE="https://${OWNER}.github.io"
+            DEFAULT_BASE="/"
+          else
+            DEFAULT_SITE="https://${OWNER}.github.io"
+            DEFAULT_BASE="/${NAME}/"
+          fi
+          # VITE_SITE_URL 只用域名，子路径由 VITE_BASE 拼进 sitemap / robots
+          echo "VITE_BASE=${CUSTOM_BASE:-$DEFAULT_BASE}" >> "$GITHUB_ENV"
+          echo "VITE_SITE_URL=${CUSTOM_SITE_URL:-$DEFAULT_SITE}" >> "$GITHUB_ENV"
+          echo "base=${CUSTOM_BASE:-$DEFAULT_BASE} site=${CUSTOM_SITE_URL:-$DEFAULT_SITE}"
+      - name: Build
+        run: pnpm build
+        env:
+          VITE_ADMIN_PASS_HASH: ${{ vars.VITE_ADMIN_PASS_HASH }}
+          VITE_GH_REPO: ${{ vars.VITE_GH_REPO || github.repository }}
+          # 只有显式开启时才把发布 Token 打进前端；公开站点默认关闭，避免泄露
+          VITE_GH_TOKEN: ${{ vars.ALLOW_BROWSER_PUBLISH == 'true' && secrets.GH_PUBLISH_TOKEN || '' }}
+          VITE_GH_BRANCH: main
+          VITE_GH_WORKFLOW: deploy.yml
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

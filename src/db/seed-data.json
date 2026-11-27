@@ -1,0 +1,357 @@
+{
+  "tagKinds": {
+    "Vue3": "tech",
+    "TypeScript": "tech",
+    "Go": "tech",
+    "HLS": "tech",
+    "WebRTC": "tech",
+    "SQLite": "tech",
+    "Playwright": "tech",
+    "Python": "tech",
+    "Fastify": "tech",
+    "Tailwind": "tech",
+    "音视频": "domain",
+    "测试平台": "domain",
+    "短视频": "domain",
+    "支付": "domain",
+    "社交": "domain",
+    "内容社区": "domain",
+    "开发者工具": "domain",
+    "酒店管理": "domain",
+    "电商": "domain",
+    "功能测试": "testtype",
+    "兼容性": "testtype",
+    "性能": "testtype",
+    "自动化": "testtype",
+    "安全": "testtype",
+    "接口测试": "testtype"
+  },
+  "works": [
+    {
+      "kind": "work",
+      "slug": "hls-p2p-player",
+      "title": "多端 HLS-P2P 播放器",
+      "subtitle": "首屏 1.2s，弱网也能边下边播",
+      "category": "全栈",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 10,
+      "started_at": "2026-03",
+      "finished_at": "2026-07",
+      "coverPrompt": "dark charcoal video streaming player interface floating in space, cinematic frame with subtle electric blue waveform and network topology lines, editorial tech product shot, high detail, no text",
+      "body": "work-hls-player",
+      "meta": {
+        "role": "独立开发 / 前端负责人",
+        "highlights": ["起播 3.1s → 1.2s", "P2P 节省 62% CDN 流量", "弱网 300kbps 可播"],
+        "metrics": [
+          { "label": "日活", "value": "300+" },
+          { "label": "崩溃率", "value": "0.02%" }
+        ],
+        "repo_private": true
+      },
+      "links": [
+        { "label": "在线演示", "url": "https://example.com/demo/hls-player", "type": "demo" },
+        { "label": "技术文档", "url": "https://example.com/docs/hls-player", "type": "doc" }
+      ],
+      "tags": ["Vue3", "TypeScript", "Go", "HLS", "WebRTC", "音视频"]
+    },
+    {
+      "kind": "work",
+      "slug": "case-platform-v2",
+      "title": "测试用例管理平台 v2",
+      "subtitle": "用例、计划、缺陷串成一条线",
+      "category": "测试平台",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 20,
+      "started_at": "2025-09",
+      "finished_at": "2026-02",
+      "coverPrompt": "minimal dark dashboard for test case management, layered panels with rows and small blue bar charts, isometric perspective, editorial product photography, deep graphite and electric blue, no text",
+      "body": "work-case-platform",
+      "meta": {
+        "role": "前端负责人",
+        "highlights": ["1.2 万条用例沉淀", "回归准备 2 天 → 4 小时", "覆盖 6 个业务线"],
+        "metrics": [
+          { "label": "用例", "value": "12,000" },
+          { "label": "月活", "value": "80+" }
+        ],
+        "repo_private": true
+      },
+      "links": [
+        { "label": "在线演示", "url": "https://example.com/case-platform", "type": "demo" },
+        { "label": "使用文档", "url": "https://example.com/docs/case-platform", "type": "doc" }
+      ],
+      "tags": ["Vue3", "TypeScript", "Python", "SQLite", "测试平台", "自动化"]
+    },
+    {
+      "kind": "work",
+      "slug": "shorts-offline-cache",
+      "title": "短剧 App 离线缓存模块",
+      "subtitle": "边看边存，断网可续播",
+      "category": "前端",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 30,
+      "started_at": "2026-08",
+      "finished_at": "2026-10",
+      "coverPrompt": "smartphone showing vertical short drama video app grid, dark studio backdrop, blue rim lighting, cinematic product shot, premium and minimal, no text",
+      "body": "work-shorts-cache",
+      "meta": {
+        "role": "客户端开发",
+        "highlights": ["离线可播率 96.4%", "弱网续播 41% → 88%", "存储异常崩溃归零"],
+        "metrics": [
+          { "label": "缓存用户次留", "value": "+6.8%" },
+          { "label": "人均缓存", "value": "3.2 集" }
+        ],
+        "repo_private": true
+      },
+      "links": [
+        { "label": "方案文档", "url": "https://example.com/docs/offline-cache", "type": "doc" }
+      ],
+      "tags": ["TypeScript", "HLS", "短视频"]
+    },
+    {
+      "kind": "work",
+      "slug": "api-mock-studio",
+      "title": "接口 Mock Studio",
+      "subtitle": "定义 schema，立刻拿到可分享的 mock 地址",
+      "category": "工具",
+      "status": "wip",
+      "featured": 0,
+      "sort_order": 40,
+      "started_at": "2026-09",
+      "finished_at": null,
+      "coverPrompt": "developer tool interface on a dark ultrawide monitor, terminal and JSON editor visible, electric blue accent light, shallow depth of field, no text",
+      "body": "work-api-mock",
+      "meta": {
+        "role": "独立开发",
+        "highlights": ["从响应反推 schema", "单文件部署", "本地延迟与错误码模拟"],
+        "metrics": [
+          { "label": "状态", "value": "60%" }
+        ],
+        "repo_private": false
+      },
+      "links": [
+        { "label": "在线演示", "url": "https://example.com/mock-studio", "type": "demo" },
+        { "label": "代码仓库", "url": "https://example.com/repo/mock-studio", "type": "repo" }
+      ],
+      "tags": ["TypeScript", "Fastify", "SQLite", "开发者工具"]
+    },
+    {
+      "kind": "app",
+      "slug": "shortplay-compat",
+      "title": "短剧 App 兼容性与性能测试",
+      "subtitle": "12 台真机、两轮全量回归，守住付费链路",
+      "category": "内容消费",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 10,
+      "started_at": "2026-08",
+      "finished_at": "2026-11",
+      "iconPrompt": "mobile app icon for a short drama video app, abstract play triangle inside rounded square, deep indigo gradient, minimal flat vector, centered, no text",
+      "body": "app-shortplay",
+      "meta": {
+        "version": "3.8.2",
+        "platforms": ["iOS", "Android"],
+        "test_types": ["功能测试", "兼容性", "性能"],
+        "test_scope": "登录/注册、会员支付、剧集播放、离线缓存、消息推送、分享回流",
+        "test_cycle": "2026-08 ~ 2026-11",
+        "env": "真机 12 台（Android 8~14 / iOS 15~18）+ 弱网仪",
+        "case_count": 480,
+        "bug_total": 96,
+        "bug_p0": 7,
+        "bug_open": 3,
+        "conclusion": "通过，遗留 3 个 P2 及以下问题",
+        "conclusion_level": "pass"
+      },
+      "links": [
+        { "label": "应用商店", "url": "https://example.com/store/shortplay", "type": "store" }
+      ],
+      "tags": ["短视频", "功能测试", "兼容性", "性能"]
+    },
+    {
+      "kind": "app",
+      "slug": "crosspay-regression",
+      "title": "跨境支付 App 回归测试",
+      "subtitle": "860 条用例 + Playwright 自动化，40 分钟跑完核心链路",
+      "category": "金融",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 20,
+      "started_at": "2026-05",
+      "finished_at": "2026-09",
+      "iconPrompt": "mobile app icon for cross-border payment app, abstract globe and card shape, teal and blue gradient, minimal flat vector, centered, no text",
+      "body": "app-crosspay",
+      "meta": {
+        "version": "5.2.0",
+        "platforms": ["iOS", "Android"],
+        "test_types": ["功能测试", "自动化", "安全"],
+        "test_scope": "收付款、汇率换算、KYC、退款、对账文件、风控拦截",
+        "test_cycle": "2026-05 ~ 2026-09",
+        "env": "真机 8 台 + 沙箱环境 + 抓包代理",
+        "case_count": 860,
+        "bug_total": 142,
+        "bug_p0": 11,
+        "bug_open": 6,
+        "conclusion": "有条件通过，遗留 6 个 P2 问题已排期",
+        "conclusion_level": "conditional"
+      },
+      "links": [
+        { "label": "应用商店", "url": "https://example.com/store/crosspay", "type": "store" }
+      ],
+      "tags": ["支付", "功能测试", "自动化", "安全"]
+    },
+    {
+      "kind": "app",
+      "slug": "social-im-test",
+      "title": "陌生人社交 App 消息链路专项",
+      "subtitle": "断网重连、消息时序、500 人群聊性能",
+      "category": "社交",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 30,
+      "started_at": "2026-02",
+      "finished_at": "2026-06",
+      "iconPrompt": "mobile app icon for social messaging app, abstract overlapping speech bubbles, coral pink gradient, minimal flat vector, centered, no text",
+      "body": "app-social",
+      "meta": {
+        "version": "2.6.1",
+        "platforms": ["iOS", "Android"],
+        "test_types": ["功能测试", "性能", "安全"],
+        "test_scope": "消息收发、会话列表、群聊、图片语音、推送到达、弱网重连",
+        "test_cycle": "2026-02 ~ 2026-06",
+        "env": "真机 8 台 + 弱网（300ms / 5% 丢包）+ 飞行模式切换",
+        "case_count": 320,
+        "bug_total": 64,
+        "bug_p0": 3,
+        "bug_open": 0,
+        "conclusion": "通过，全部缺陷已关闭",
+        "conclusion_level": "pass"
+      },
+      "links": [],
+      "tags": ["社交", "功能测试", "性能", "安全"]
+    },
+    {
+      "kind": "app",
+      "slug": "community-h5",
+      "title": "内容社区 H5 兼容性专项",
+      "subtitle": "微信内置浏览器是主战场，视觉回归 210 条",
+      "category": "内容社区",
+      "status": "done",
+      "featured": 0,
+      "sort_order": 40,
+      "started_at": "2025-11",
+      "finished_at": "2026-01",
+      "iconPrompt": "mobile app icon for content community app, abstract layered cards, amber and graphite gradient, minimal flat vector, centered, no text",
+      "body": "app-community",
+      "meta": {
+        "version": "1.9.4",
+        "platforms": ["H5", "微信"],
+        "test_types": ["兼容性", "自动化"],
+        "test_scope": "内容流、详情页、评论、分享卡、深色模式、安全区",
+        "test_cycle": "2025-11 ~ 2026-01",
+        "env": "Android 6 款 + iOS 4 款 + 微信内置浏览器",
+        "case_count": 210,
+        "bug_total": 38,
+        "bug_p0": 1,
+        "bug_open": 2,
+        "conclusion": "有条件通过，2 个 P2 修复后复审",
+        "conclusion_level": "conditional"
+      },
+      "links": [],
+      "tags": ["内容社区", "兼容性", "自动化"]
+    },
+    {
+      "kind": "app",
+      "slug": "gujian-hotel-test",
+      "title": "古剑酒店后台管理系统测试",
+      "subtitle": "200+ 用例覆盖登记、收银与营业查询",
+      "category": "酒店管理",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 50,
+      "started_at": "2024-09",
+      "finished_at": "2024-10",
+      "body": "app-gujian-hotel",
+      "meta": {
+        "version": "2.3",
+        "platforms": ["Web"],
+        "test_types": ["功能测试", "兼容性"],
+        "test_scope": "用户登记、收银结账、营业信息查询、权限与报表",
+        "test_cycle": "2024.09 ~ 2024.10",
+        "env": "Windows 10 + Chrome / Edge / Firefox",
+        "case_count": 200,
+        "bug_total": 50,
+        "bug_p0": 5,
+        "bug_open": 0,
+        "conclusion": "通过，功能点 100% 覆盖，缺陷全部闭环",
+        "conclusion_level": "pass"
+      },
+      "links": [],
+      "tags": ["酒店管理", "功能测试", "兼容性"]
+    },
+    {
+      "kind": "app",
+      "slug": "yuegou-ecommerce-test",
+      "title": "悦购电商平台测试",
+      "subtitle": "Web 端 300 条用例，接口与性能一起验",
+      "category": "电商",
+      "status": "done",
+      "featured": 1,
+      "sort_order": 60,
+      "started_at": "2024-10",
+      "finished_at": "2024-12",
+      "body": "app-yuegou-ecommerce",
+      "meta": {
+        "version": "1.0",
+        "platforms": ["Web"],
+        "test_types": ["功能测试", "接口测试", "性能"],
+        "test_scope": "商品浏览、下单支付、优惠活动、订单与售后",
+        "test_cycle": "2024.10 ~ 2024.12",
+        "env": "Windows 10 + Chrome / Firefox；Postman / JMeter",
+        "case_count": 300,
+        "bug_total": 150,
+        "bug_p0": 9,
+        "bug_open": 0,
+        "conclusion": "通过，150 个缺陷全部修复并回归",
+        "conclusion_level": "pass"
+      },
+      "links": [],
+      "tags": ["电商", "功能测试", "接口测试"]
+    }
+  ],
+  "settings": {
+    "profile": {
+      "name": "张福建",
+      "enName": "Zhang Fujian",
+      "tagline": "把「能跑」变成「可靠」，把「可靠」写成用例。",
+      "role": "测试工程师 · 2025 届",
+      "avatar": "",
+      "resumeUrl": "/resume",
+      "email": "3380447383@qq.com",
+      "location": "重庆",
+      "since": 2024,
+      "availability": "求职中 · 质量保障方向"
+    },
+    "social": [
+      { "platform": "邮箱", "label": "3380447383@qq.com", "url": "mailto:3380447383@qq.com", "icon": "mail" }
+    ],
+    "seo": {
+      "title": "张福建 · 测试工程师 | 个人官网",
+      "description": "重庆移通学院计算机科学与技术 2025 届。黑盒 / 白盒测试、Selenium 自动化、接口与性能测试，做过酒店后台、电商平台与移动 App 的完整测试闭环。",
+      "keywords": "张福建,测试工程师,软件测试,自动化测试,Selenium,接口测试,质量保障,重庆移通学院",
+      "ogImage": ""
+    },
+    "theme": { "primary": "#3b82f6", "mode": "dark" },
+    "modules": { "stats": true, "featured": true, "apps": true, "skills": true, "contact": true },
+    "analytics": {
+      "enabled": true,
+      "endpoint": "",
+      "sampleRate": 1,
+      "respectDnt": true,
+      "retentionDays": 180
+    },
+    "lastPublishedAt": "2026-11-20 10:12",
+    "contentRevision": 0
+  }
+}
