@@ -301,47 +301,47 @@ onBeforeUnmount(clearTimer)
         </p>
       </div>
 
-      <div v-if="!cfg.configured" class="rounded-[10px] border border-warn/35 bg-warn/5 p-4">
+      <div class="rounded-[10px] border border-line bg-bg p-4">
         <div class="flex items-center gap-2">
-          <Github :size="14" class="text-warn" />
-          <p class="text-[12.5px] font-medium">{{ cfg.repo ? '还差一个 GitHub Token' : '发布通道尚未配置' }}</p>
+          <Github :size="14" class="text-dim" />
+          <p class="text-[12.5px] font-medium">
+            {{ cfg.configured ? '发布通道' : (cfg.repo ? '还差一个 GitHub Token' : '发布通道尚未配置') }}
+          </p>
+          <span v-if="cfg.configured" class="badge badge-done text-[10.5px]">已就绪</span>
+          <span v-else class="badge badge-wip text-[10.5px]">待配置</span>
         </div>
 
         <template v-if="cfg.repo">
           <p class="mt-1.5 text-[11.5px] leading-relaxed text-dim">
-            仓库已配置为 <span class="num text-ink">{{ cfg.repo }}</span
-            >。粘贴一个有该仓库 Actions 读写权限的 Fine-grained Token，仅保存在本机浏览器，不会进入构建产物。
+            仓库 <span class="num text-ink">{{ cfg.repo }}</span> · 分支
+            <span class="num text-ink">{{ cfg.branch || 'main' }}</span
+            >。粘贴一个有该仓库 <b>Contents 读写</b>（图片上传）和 <b>Actions 读写</b>（发布）权限的 Token，仅保存在本机浏览器。
           </p>
           <div class="mt-2.5 flex flex-col gap-2 sm:flex-row">
             <input
               v-model="tokenDraft"
               type="password"
               class="input flex-1"
-              placeholder="github_pat_..."
+              :placeholder="usingBrowserToken ? '重新粘贴 GitHub Token 以更换…' : 'github_pat_...'"
               autocomplete="off"
               @keyup.enter="saveToken"
             />
             <button type="button" class="btn btn-primary btn-sm shrink-0" :disabled="savingToken" @click="saveToken">
-              保存并启用
+              {{ usingBrowserToken ? '更新 Token' : '保存并启用' }}
             </button>
           </div>
           <p class="mt-2 text-[10.5px] leading-relaxed text-dim">
-            GitHub → Settings → Developer settings → Fine-grained tokens：勾选该仓库的 Actions 与 Contents
-            读写权限（Contents 用于封面/图片上传）。
+            GitHub → Settings → Developer settings → Tokens (classic)：勾 <code>repo</code>（Contents）和
+            <code>workflow</code>（Actions）。
           </p>
         </template>
 
         <template v-else>
           <p class="mt-1.5 text-[11.5px] leading-relaxed text-dim">
-            在构建环境写入以下变量后重新构建后台，即可一键触发 GitHub Actions：
+            构建环境写入以下变量后重新部署，或在 Actions 里自动推导：
           </p>
-          <pre class="num mt-2 overflow-x-auto rounded-lg border border-line bg-bg p-3 text-[10.5px] leading-relaxed">VITE_GH_REPO=your-name/your-repo
-VITE_GH_TOKEN=github_pat_xxx   # 需要 actions:write
-VITE_GH_BRANCH=main
-VITE_GH_WORKFLOW=deploy.yml</pre>
-          <p class="mt-2 text-[10.5px] leading-relaxed text-dim">
-            线上站点推荐把 Token 留空，部署后在发布弹窗里临时填入，避免泄露。
-          </p>
+          <pre class="num mt-2 overflow-x-auto rounded-lg border border-line bg-bg/60 p-3 text-[10.5px] leading-relaxed">VITE_GH_REPO=ZFJ-cq/Personal-Website
+VITE_GH_TOKEN=    # 线上留空，部署后在本弹窗临时填入</pre>
         </template>
       </div>
 
