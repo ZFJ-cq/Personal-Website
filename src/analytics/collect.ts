@@ -1,11 +1,29 @@
 import dayjs from 'dayjs'
-import { db } from '@/db'
+import { db, dbMode } from '@/db'
 import { getAnalyticsSettings } from '@/api/settings'
 
 const SESSION_KEY = 'zf.session'
 const NO_TRACK_KEY = 'zf.noTrack'
 const VISITOR_PREFIX = 'zf.visitor.'
 const RECENT_KEY = 'zf.recentPv'
+
+let settingsCache: { at: number; value: Awaited<ReturnType<typeof getAnalyticsSettings>> } | null = null
+
+/** 统计设置缓存 1 分钟，避免每次事件都查一次库 */
+async function analyticsSettings() {
+  if (settingsCache && Date.now() - settingsCache.at < 60_000) return settingsCache.value
+  const value = await getAnalyticsSettings()
+  settingsCache = { at: Date.now(), value }
+  return value
+}
+
+function isAdminBrowser(): boolean {
+  try {
+    return localStorage.getItem('zf.admin.auth') === '1'
+  } catch {
+    return false
+  }
+}
 
 export type TrackEvent = 'pageview' | 'outbound' | 'resume' | 'search'
 
@@ -193,7 +211,7 @@ export async function track(
     }
     if (isNoTrack()) return
 
-    const settings = await getAnalyticsSettings()
+    const settings = await analyticsSettings()
     if (!settings.enabled) return
     if (settings.respectDnt && navigator.doNotTrack === '1') return
     const rate = Math.min(1, Math.max(0, settings.sampleRate ?? 1))
@@ -234,6 +252,10 @@ export async function track(
         return null
       }
     })()
+
+    // 本地模式且不是后台浏览器：数据只属于当前访客，没有汇总价值，
+    // 不写入 IndexedDB，避免每次浏览都导出整库造成卡顿。
+    if (dbMode.value === 'local' && !isAdminBrowser()) return
 
     await insertVisit({
       event,

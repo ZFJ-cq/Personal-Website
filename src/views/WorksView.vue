@@ -4,12 +4,14 @@ import { Search, SlidersHorizontal, X } from 'lucide-vue-next'
 import { listCategories, listTags, listWorks } from '@/api/works'
 import type { Tag, WorkWithTags } from '@/db/types'
 import { applySeo } from '@/lib/seo'
+import { useSiteStore } from '@/stores/site'
 import { trackSearch } from '@/analytics/collect'
 import PageContainer from '@/components/PageContainer.vue'
 import WorkCard from '@/components/WorkCard.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
+const site = useSiteStore()
 const works = ref<WorkWithTags[]>([])
 const categories = ref<Array<{ category: string; count: number }>>([])
 const tags = ref<Array<Tag & { count: number }>>([])
@@ -33,7 +35,10 @@ const filtered = computed(() => {
       return false
     }
     if (kw) {
-      const haystack = `${work.title} ${work.subtitle ?? ''} ${work.summary ?? ''}`.toLowerCase()
+      const haystack =
+        `${work.title} ${work.subtitle ?? ''} ${work.summary ?? ''} ${work.category ?? ''} ${work.tags
+          .map((tag) => tag.name)
+          .join(' ')}`.toLowerCase()
       if (!haystack.includes(kw)) return false
     }
     return true
@@ -96,9 +101,11 @@ async function load() {
 }
 
 onMounted(() => {
+  const name = site.profile.name || '张福建'
   applySeo({
-    title: '作品集 · 张福建',
-    description: '做过的项目与产品：多端 HLS-P2P 播放器、测试用例平台、短剧离线缓存、接口 Mock 工具。',
+    title: `作品集 · ${name}`,
+    description:
+      site.settings.seo.description || '做过的项目与产品：多端 HLS-P2P 播放器、测试用例平台、短剧离线缓存、接口 Mock 工具。',
   })
   load()
 })

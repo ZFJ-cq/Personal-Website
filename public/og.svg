@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0d12"/>
+      <stop offset="1" stop-color="#080a0d"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#3b82f6" stroke-opacity="0.10" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="1060" cy="90" r="300" fill="url(#glow)"/>
+  <rect x="72" y="72" width="34" height="34" rx="8" fill="#0f1622" stroke="#3b82f6" stroke-opacity="0.55"/>
+  <text x="89" y="96" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#60a5fa" text-anchor="middle">ZF</text>
+  <text x="120" y="95" font-family="Menlo, monospace" font-size="13" letter-spacing="4" fill="#7d8590">TECHNICAL DOSSIER</text>
+  <text x="72" y="290" font-family="Songti SC, Times New Roman, serif" font-size="92" font-weight="600" fill="#e9edf5">张福建</text>
+  <text x="74" y="345" font-family="Menlo, monospace" font-size="20" letter-spacing="2" fill="#60a5fa">TEST ENGINEER / 2025</text>
+  <text x="74" y="410" font-family="PingFang SC, Helvetica, sans-serif" font-size="26" fill="#a7b0be">把「能跑」变成「可靠」，把「可靠」写成用例。</text>
+  <line x1="72" y1="470" x2="1128" y2="470" stroke="#3b82f6" stroke-opacity="0.25"/>
+  <text x="72" y="520" font-family="Menlo, monospace" font-size="17" fill="#7d8590">WORKS 05   ·   APPS 06   ·   BUGS 540+   ·   AUTOMATION / API / PERFORMANCE</text>
+  <text x="1128" y="520" font-family="Menlo, monospace" font-size="14" fill="#4b5563" text-anchor="end">zfj-cq.github.io</text>
+</svg>

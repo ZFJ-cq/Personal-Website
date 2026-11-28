@@ -3,7 +3,7 @@ import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 import schemaSql from './schema.sql?raw'
 import { idbGet, idbSet } from './idb'
 import { seedDatabase } from './seed'
-import type { DbAdapter } from './types'
+import type { DbAdapter, DbStatement } from './types'
 
 const STORAGE_KEY = 'zf.site.db'
 const SNAPSHOT_VERSION_KEY = 'zf.snapshotVersion'
@@ -77,17 +77,20 @@ export class LocalAdapter implements DbAdapter {
   private db: Database | null = null
   private saveTimer: ReturnType<typeof setTimeout> | null = null
   private savePromise: Promise<void> | null = null
+  private dirty = false
 
   async init(): Promise<void> {
     const SQL = await initSqlJs({ locateFile: () => wasmUrl })
     const saved = await idbGet<Uint8Array>(STORAGE_KEY)
     const admin = isAdminBrowser()
+    let needsSave = false
 
     if (saved && saved.byteLength > 0) {
       try {
         this.db = new SQL.Database(saved)
       } catch {
         this.db = new SQL.Database()
+        needsSave = true
       }
 
       // 普通访客：发布快照更新后自动刷新本地缓存；后台浏览器保留未发布改动
@@ -99,6 +102,7 @@ export class LocalAdapter implements DbAdapter {
             this.db?.close()
             this.db = snapshot
             markAppliedVersion(version)
+            needsSave = true
           }
         }
       }
@@ -111,14 +115,21 @@ export class LocalAdapter implements DbAdapter {
       } else {
         this.db = new SQL.Database()
       }
+      needsSave = true
     }
 
     this.db.run('PRAGMA foreign_keys = ON')
     if (!this.hasTable('works')) {
       this.db.run(schemaSql)
       await seedDatabase(this)
+      needsSave = true
     }
-    await this.persistNow()
+    // 只有首次建库或快照被替换时才回写 IndexedDB，避免每次访问重写整库
+    if (needsSave) await this.persistNow()
+
+    window.addEventListener('pagehide', () => {
+      if (this.dirty) void this.persistNow()
+    })
   }
 
   private hasTable(name: string): boolean {
@@ -149,15 +160,24 @@ export class LocalAdapter implements DbAdapter {
     const database = this.db
     if (!database) return Promise.resolve()
     database.run(sql, params as never[])
+    this.dirty = true
     this.schedulePersist()
     return Promise.resolve()
+  }
+
+  async batch(statements: DbStatement[]): Promise<void> {
+    const database = this.db
+    if (!database || !statements.length) return
+    for (const statement of statements) database.run(statement.sql, (statement.params ?? []) as never[])
+    this.dirty = true
+    this.schedulePersist()
   }
 
   private schedulePersist() {
     if (this.saveTimer) clearTimeout(this.saveTimer)
     this.saveTimer = setTimeout(() => {
       void this.persistNow()
-    }, 320)
+    }, 1200)
   }
 
   private persistNow(): Promise<void> {
@@ -166,6 +186,8 @@ export class LocalAdapter implements DbAdapter {
       clearTimeout(this.saveTimer)
       this.saveTimer = null
     }
+    if (!this.dirty) return this.savePromise ?? Promise.resolve()
+    this.dirty = false
     const binary = this.db.export()
     this.savePromise = idbSet(STORAGE_KEY, binary).catch(() => undefined)
     return this.savePromise

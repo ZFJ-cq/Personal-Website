@@ -150,11 +150,6 @@ onBeforeUnmount(() => {
             </button>
           </form>
 
-          <p class="mt-5 rounded-lg border border-line bg-surface/60 px-3 py-2 text-[11px] leading-relaxed text-dim">
-            首次使用默认口令 <code class="num rounded bg-surface2 px-1">admin123</code>。正式部署请通过
-            <code class="num rounded bg-surface2 px-1">VITE_ADMIN_PASS_HASH</code> 替换。
-          </p>
-
           <RouterLink to="/" class="mt-6 inline-flex items-center gap-1.5 text-[12px] text-dim hover:text-ink">
             <ArrowLeft :size="13" /> 返回个人官网
           </RouterLink>

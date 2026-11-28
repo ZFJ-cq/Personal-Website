@@ -7,7 +7,9 @@ const require = createRequire(import.meta.url)
 const distDir = resolve(process.cwd(), 'dist')
 if (!existsSync(distDir)) mkdirSync(distDir, { recursive: true })
 
-const site = (process.env.VITE_SITE_URL || 'https://example.com').replace(/\/$/, '')
+const site = (process.env.VITE_SITE_URL || 'https://example.com')
+  .replace(/\/+$/, '')
+  .replace(/^(https?:\/\/[^/]+)/, (origin) => origin.toLowerCase())
 const base = process.env.VITE_BASE || '/'
 const prefix = base.endsWith('/') ? base : `${base}/`
 const today = new Date().toISOString().slice(0, 10)
@@ -43,7 +45,7 @@ if (existsSync(snapshotPath)) {
     const SQL = await initSqlJs({ locateFile: () => require.resolve('sql.js/dist/sql-wasm.wasm') })
     const db = new SQL.Database(new Uint8Array(readFileSync(snapshotPath)))
     const result = db.exec(
-      "SELECT kind, slug, featured, finished_at FROM works WHERE status IN ('done','wip') ORDER BY featured DESC, sort_order ASC",
+      "SELECT kind, slug, featured, finished_at, updated_at FROM works WHERE status IN ('done','wip') ORDER BY featured DESC, sort_order ASC",
     )
     if (result.length) {
       const { columns, values } = result[0]
@@ -68,10 +70,11 @@ if (!works.length) {
 }
 
 for (const work of works) {
+  const stamp = String(work.updated_at || work.finished_at || '').slice(0, 10)
   entries.push({
     path: `/${work.kind === 'app' ? 'apps' : 'works'}/${work.slug}`,
     priority: work.featured ? '0.8' : '0.6',
-    lastmod: work.finished_at ? `${work.finished_at}-01` : undefined,
+    lastmod: /^\d{4}-\d{2}-\d{2}$/.test(stamp) ? stamp : undefined,
   })
 }
 
@@ -91,9 +94,10 @@ ${entries
 `
 
 writeFileSync(resolve(distDir, 'sitemap.xml'), xml, 'utf8')
+const adminPaths = [...new Set(['/admin', `${prefix}admin`])]
 writeFileSync(
   resolve(distDir, 'robots.txt'),
-  `User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${site}${prefix}sitemap.xml\n`,
+  `User-agent: *\nAllow: /\n${adminPaths.map((path) => `Disallow: ${path}`).join('\n')}\n\nSitemap: ${site}${prefix}sitemap.xml\n`,
   'utf8',
 )
 console.log(`[gen-sitemap] 已生成 sitemap.xml（${entries.length} 条）与 robots.txt`)

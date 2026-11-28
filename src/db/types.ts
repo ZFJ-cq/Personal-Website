@@ -1,9 +1,16 @@
+export interface DbStatement {
+  sql: string
+  params?: unknown[]
+}
+
 export interface DbAdapter {
   readonly mode: 'local' | 'turso'
   init(): Promise<void>
   all<T>(sql: string, params?: unknown[]): Promise<T[]>
   get<T>(sql: string, params?: unknown[]): Promise<T | null>
   run(sql: string, params?: unknown[]): Promise<void>
+  /** 批量执行，云端可合并成一次 HTTP 请求 */
+  batch?: (statements: DbStatement[]) => Promise<void>
   exportBinary?: () => Promise<Uint8Array>
   loadBinary?: (bytes: Uint8Array) => Promise<void>
 }
@@ -94,6 +101,12 @@ export interface Profile {
   location: string
   since: number
   availability: string
+  /** 首页 hero 下方的一段介绍，留空使用内置文案 */
+  intro?: string
+  /** 首页档案卡 FOCUS 行 */
+  focus?: string
+  /** 首页档案卡 HONOR 行 */
+  honor?: string
 }
 
 export interface SocialLink {

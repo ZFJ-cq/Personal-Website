@@ -1,6 +1,7 @@
-import { db } from '@/db'
+import { db, runBatch } from '@/db'
 import type {
   AppMeta,
+  DbStatement,
   Tag,
   Work,
   WorkDetail,
@@ -12,6 +13,9 @@ import type {
 } from '@/db/types'
 
 const PUBLIC_STATUS = "('done','wip')"
+
+const BUMP_REVISION = `INSERT INTO site_settings (key, value) VALUES ('contentRevision', '1')
+  ON CONFLICT(key) DO UPDATE SET value = CAST(CAST(value AS INTEGER) + 1 AS TEXT)`
 
 export interface WorkListOptions {
   kind: WorkKind
@@ -337,35 +341,55 @@ export async function duplicateWork(id: number): Promise<number> {
 }
 
 export async function reorderWorks(ids: number[]): Promise<void> {
-  for (let i = 0; i < ids.length; i += 1) {
-    await db().run('UPDATE works SET sort_order = ?, updated_at = datetime(\'now\') WHERE id = ?', [i * 10, ids[i]])
-  }
-  await db().run(
-    `INSERT INTO site_settings (key, value) VALUES ('contentRevision', '1')
-     ON CONFLICT(key) DO UPDATE SET value = CAST(CAST(value AS INTEGER) + 1 AS TEXT)`,
-  )
+  if (!ids.length) return
+  const statements: DbStatement[] = ids.map((id, index) => ({
+    sql: "UPDATE works SET sort_order = ?, updated_at = datetime('now') WHERE id = ?",
+    params: [index * 10, id],
+  }))
+  statements.push({ sql: BUMP_REVISION })
+  await runBatch(statements)
 }
 
 export async function bulkPatch(ids: number[], patch: { featured?: number; status?: WorkStatus }): Promise<void> {
+  if (!ids.length) return
+  const statements: DbStatement[] = []
   for (const id of ids) {
     if (patch.featured !== undefined) {
-      await db().run('UPDATE works SET featured = ?, updated_at = datetime(\'now\') WHERE id = ?', [
-        patch.featured,
-        id,
-      ])
+      statements.push({
+        sql: "UPDATE works SET featured = ?, updated_at = datetime('now') WHERE id = ?",
+        params: [patch.featured, id],
+      })
     }
     if (patch.status !== undefined) {
-      await db().run('UPDATE works SET status = ?, updated_at = datetime(\'now\') WHERE id = ?', [patch.status, id])
+      statements.push({
+        sql: "UPDATE works SET status = ?, updated_at = datetime('now') WHERE id = ?",
+        params: [patch.status, id],
+      })
     }
   }
-  await db().run(
-    `INSERT INTO site_settings (key, value) VALUES ('contentRevision', '1')
-     ON CONFLICT(key) DO UPDATE SET value = CAST(CAST(value AS INTEGER) + 1 AS TEXT)`,
-  )
+  if (!statements.length) return
+  statements.push({ sql: BUMP_REVISION })
+  await runBatch(statements)
 }
 
 export async function deleteWorks(ids: number[]): Promise<void> {
-  for (const id of ids) await deleteWork(id)
+  if (!ids.length) return
+  const placeholders = ids.map(() => '?').join(',')
+  const rows = await db().all<Work>(`SELECT * FROM works WHERE id IN (${placeholders})`, ids)
+  const statements: DbStatement[] = []
+  for (const id of ids) {
+    statements.push({ sql: 'DELETE FROM work_links WHERE work_id = ?', params: [id] })
+    statements.push({ sql: 'DELETE FROM work_tags WHERE work_id = ?', params: [id] })
+    statements.push({ sql: 'DELETE FROM works WHERE id = ?', params: [id] })
+  }
+  for (const row of rows) {
+    statements.push({
+      sql: 'INSERT INTO admin_audit (action, target_id, payload) VALUES (?,?,?)',
+      params: ['delete_work', row.id, JSON.stringify({ slug: row.slug, title: row.title })],
+    })
+  }
+  statements.push({ sql: BUMP_REVISION })
+  await runBatch(statements)
 }
 
 export interface SiteStats {

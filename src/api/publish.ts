@@ -122,6 +122,27 @@ export async function runPreflight(): Promise<PublishCheck[]> {
   const database = db()
   const checks: PublishCheck[] = []
 
+  let snapshotOk = false
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}data/site.db`, {
+      method: 'HEAD',
+      cache: 'no-store',
+    })
+    snapshotOk = res.ok
+  } catch {
+    snapshotOk = false
+  }
+  checks.push(
+    snapshotOk
+      ? { level: 'ok', title: '线上快照存在', detail: '访客可以加载发布快照。' }
+      : {
+          level: 'error',
+          title: '线上快照缺失',
+          detail:
+            '线上没有 data/site.db，访客会看到内置种子数据。请先在仓库 Secrets 配置 TURSO_URL / TURSO_TOKEN 并重新部署。',
+        },
+  )
+
   const dup = await database.all<{ slug: string; c: number }>(
     'SELECT slug, COUNT(*) AS c FROM works GROUP BY slug HAVING c > 1',
   )

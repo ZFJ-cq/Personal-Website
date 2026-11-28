@@ -12,10 +12,18 @@ const versionFile = resolve(projectRoot, 'public/data/site-version.json')
 const url = process.env.TURSO_URL || process.env.VITE_TURSO_URL
 const token = process.env.TURSO_TOKEN || process.env.VITE_TURSO_TOKEN
 
+const isCI = process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true'
+
 if (!url || !token) {
   rmSync(output, { force: true })
   rmSync(versionFile, { force: true })
-  console.warn('[snapshot] 未提供 TURSO_URL / TURSO_TOKEN，跳过快照；构建将使用内置种子数据。')
+  if (isCI) {
+    console.error(
+      '[snapshot] CI 环境缺少 TURSO_URL / TURSO_TOKEN，已终止构建避免部署种子数据。请在仓库 Secrets 中配置。',
+    )
+    process.exit(1)
+  }
+  console.warn('[snapshot] 未提供 TURSO_URL / TURSO_TOKEN，跳过快照；本地构建将使用内置种子数据。')
   process.exit(0)
 }
 

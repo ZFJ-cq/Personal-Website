@@ -33,6 +33,7 @@ import {
   type TrendPoint,
 } from '@/analytics/report'
 import { getAnalyticsSettings } from '@/api/settings'
+import { db } from '@/db'
 import { formatNumber } from '@/lib/utils'
 import { useToast } from '@/composables/useToast'
 import LineChart from '@/components/charts/LineChart.vue'
@@ -60,6 +61,7 @@ const browsers = ref<Slice[]>([])
 const countries = ref<Slice[]>([])
 const funnel = ref<FunnelStep[]>([])
 const heatmap = ref<HeatmapData>({ matrix: [], max: 0, total: 0 })
+const endpoint = ref('')
 
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -231,10 +233,33 @@ watch(range, () => {
   void refreshRange()
 })
 
+async function exportCsv() {
+  try {
+    const rows = await db().all<Record<string, unknown>>(
+      `SELECT ts, date, path, route_type, ref_host, device, os, browser, event, is_bot
+       FROM visits ORDER BY ts DESC LIMIT 5000`,
+    )
+    const headers = ['ts', 'date', 'path', 'route_type', 'ref_host', 'device', 'os', 'browser', 'event', 'is_bot']
+    const escape = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`
+    const csv = [headers.join(','), ...rows.map((row) => headers.map((key) => escape(row[key])).join(','))].join('\n')
+    const url = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8' }))
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `visits-${new Date().toISOString().slice(0, 10)}.csv`
+    anchor.click()
+    anchor.remove()
+    URL.revokeObjectURL(url)
+    toast(`已导出 ${rows.length} 条访问记录`, 'success')
+  } catch (err) {
+    toast((err as Error).message, 'error')
+  }
+}
+
 onMounted(async () => {
   document.title = '访客统计 · 内容后台'
   try {
     const settings = await getAnalyticsSettings()
+    endpoint.value = settings.endpoint || import.meta.env.VITE_ANALYTICS_ENDPOINT || ''
     const removed = await purgeOldVisits(settings.retentionDays || 180)
     if (removed) toast(`已自动清理 ${removed} 条超过保留期的访问记录`, 'info')
   } catch {
@@ -267,11 +292,20 @@ onBeforeUnmount(() => {
           <Sparkles :size="14" /> {{ busy ? '生成中…' : '生成演示数据' }}
         </button>
         <RouterLink to="/admin/settings" class="btn btn-sm">统计设置</RouterLink>
+        <button type="button" class="btn btn-sm" :disabled="loading" @click="exportCsv">导出 CSV</button>
         <button type="button" class="btn btn-sm" :disabled="loading" @click="refreshAll">
           <RefreshCw :size="14" :class="loading ? 'animate-spin' : ''" /> 刷新
         </button>
       </div>
     </header>
+
+    <p
+      v-if="!endpoint"
+      class="rounded-lg border border-warn/30 bg-warn/5 px-3 py-2 text-[11.5px] leading-relaxed text-warn"
+    >
+      当前未配置汇总端，以下数据仅来自本浏览器（管理员自己访问时记录），看不到其他访客。接入
+      <span class="num">VITE_ANALYTICS_ENDPOINT</span> 后才能获得全站统计。
+    </p>
 
     <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
       <div v-for="card in cards" :key="card.label" class="card p-4" :title="card.tip">

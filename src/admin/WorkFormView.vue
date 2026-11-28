@@ -388,7 +388,9 @@ function validateField(field: string, index = -1) {
   if (field === 'summary') setError('summary', form.summary.length > 5000 ? '正文不超过 5000 字' : '')
   if (field === 'cover') {
     const url = form.cover_url.trim()
-    setError('cover', url && (!safeHttpUrl(url) || !url.startsWith('https://')) ? '封面需以 https:// 开头' : '')
+    const localDev = import.meta.env.DEV && /^https?:\/\/(localhost|127\.0\.0\.1)[:/]/.test(url)
+    const valid = !url || (!!safeHttpUrl(url) && (url.startsWith('https://') || localDev))
+    setError('cover', valid ? '' : '封面需以 https:// 开头（本机调试允许 localhost）')
   }
   if (field === 'link' && index >= 0) {
     const link = form.links[index]

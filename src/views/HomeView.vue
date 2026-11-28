@@ -94,7 +94,7 @@ onMounted(async () => {
       <div class="relative grid items-end gap-10 lg:grid-cols-[1.28fr_0.72fr] lg:gap-12">
         <div class="rise">
           <div class="flex flex-wrap items-center gap-3">
-            <span class="index-tag">ZF-2026 / DOSSIER</span>
+            <span class="index-tag">ZF-{{ new Date().getFullYear() }} / DOSSIER</span>
             <span class="hairline hidden w-16 sm:block" />
             <span v-if="profile.availability" class="eyebrow flex items-center gap-1.5">
               <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
@@ -113,7 +113,10 @@ onMounted(async () => {
             {{ profile.tagline || '把「能跑」变成「可靠」。' }}
           </p>
           <p class="mt-5 max-w-[48ch] text-[14px] leading-relaxed text-dim md:text-[15px]">
-            重庆移通学院计算机科学与技术 2025 届。做过酒店后台、电商平台与移动 App 的完整测试闭环；也写 Vue，能从代码层判断前端缺陷。这里只放具体数字，不堆形容词。
+            {{
+              profile.intro ||
+              '重庆移通学院计算机科学与技术 2025 届。做过酒店后台、电商平台与移动 App 的完整测试闭环；也写 Vue，能从代码层判断前端缺陷。这里只放具体数字，不堆形容词。'
+            }}
           </p>
 
           <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -184,11 +187,11 @@ onMounted(async () => {
               </div>
               <div class="flex items-center justify-between gap-4 border-b border-line/60 py-2.5">
                 <dt class="eyebrow">FOCUS</dt>
-                <dd class="text-[12.5px]">功能 · 接口 · 自动化</dd>
+                <dd class="text-[12.5px]">{{ profile.focus || '功能 · 接口 · 自动化' }}</dd>
               </div>
               <div class="flex items-center justify-between gap-4 border-b border-line/60 py-2.5">
                 <dt class="eyebrow">HONOR</dt>
-                <dd class="text-[12.5px]">国赛二等奖 ×2</dd>
+                <dd class="text-[12.5px]">{{ profile.honor || '国赛二等奖 ×2' }}</dd>
               </div>
               <div class="flex items-center justify-between gap-4 py-2.5">
                 <dt class="eyebrow">STATUS</dt>

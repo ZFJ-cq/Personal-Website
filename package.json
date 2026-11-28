@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && node scripts/copy-404.mjs && node scripts/gen-sitemap.mjs",
-    "snapshot": "node scripts/snapshot.mjs",
+    "snapshot": "node --env-file-if-exists=.env.local scripts/snapshot.mjs",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit"
   },

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { Menu, Moon, Search, Sun, X } from 'lucide-vue-next'
 import { useSiteStore } from '@/stores/site'
 import { useTheme } from '@/composables/useTheme'
+import { useFocusTrap } from '@/composables/useFocusTrap'
 
 const route = useRoute()
 const site = useSiteStore()
@@ -11,6 +12,9 @@ const { theme, toggleTheme } = useTheme()
 
 const scrolled = ref(false)
 const drawer = ref(false)
+const drawerPanel = ref<HTMLElement | null>(null)
+
+useFocusTrap(() => drawerPanel.value, drawer)
 
 const nav = [
   { label: '作品', to: '/works' },
@@ -31,8 +35,14 @@ function openSearch() {
   window.dispatchEvent(new Event('zf:command'))
 }
 
+let scrollRaf = 0
+
 function onScroll() {
-  scrolled.value = window.scrollY > 16
+  if (scrollRaf) return
+  scrollRaf = requestAnimationFrame(() => {
+    scrollRaf = 0
+    scrolled.value = window.scrollY > 16
+  })
 }
 
 function onKey(event: KeyboardEvent) {
@@ -59,6 +69,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('keydown', onKey)
+  if (scrollRaf) cancelAnimationFrame(scrollRaf)
   document.body.style.overflow = ''
 })
 </script>
@@ -129,6 +140,7 @@ onBeforeUnmount(() => {
       <div v-if="drawer" class="fixed inset-0 z-[100] md:hidden" role="dialog" aria-modal="true" aria-label="站点菜单">
         <div class="absolute inset-0 bg-black/55 backdrop-blur-[2px]" @click="drawer = false" />
         <aside
+          ref="drawerPanel"
           class="absolute right-0 top-0 flex h-full w-[86%] max-w-[340px] flex-col border-l border-line bg-bg p-5 shadow-modal safe-bottom"
         >
           <div class="flex items-center justify-between">

@@ -42,6 +42,7 @@ const visible = computed(() => !!props.src && !failed.value)
     :alt="alt"
     :loading="eager ? 'eager' : 'lazy'"
     decoding="async"
+    class="bg-surface2"
     @error="onError"
   />
   <div v-else class="cover-fallback" role="img" :aria-label="alt || '占位封面'">

@@ -13,6 +13,7 @@ export {
   readTursoConfig,
   exportDatabase,
   importDatabase,
+  runBatch,
 } from './adapter'
 export { TursoAdapter, LocalAdapter }
 export type { DbAdapter }

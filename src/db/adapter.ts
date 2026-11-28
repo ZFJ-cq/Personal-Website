@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { DbAdapter } from './types'
+import type { DbAdapter, DbStatement } from './types'
 import { LocalAdapter } from './sqljs'
 import { TursoAdapter } from './turso'
 
@@ -94,6 +94,17 @@ export async function disconnectTurso(): Promise<void> {
 export function db(): DbAdapter {
   if (!current) throw new Error('数据源尚未就绪')
   return current
+}
+
+/** 合并多次写入：Turso 走 batch，一次 HTTP 往返；本地库逐条执行 */
+export async function runBatch(statements: DbStatement[]): Promise<void> {
+  if (!statements.length) return
+  const adapter = db()
+  if (adapter.batch) {
+    await adapter.batch(statements)
+    return
+  }
+  for (const statement of statements) await adapter.run(statement.sql, statement.params ?? [])
 }
 
 export async function exportDatabase(): Promise<Uint8Array | null> {

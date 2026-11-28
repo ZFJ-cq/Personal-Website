@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { X } from 'lucide-vue-next'
+import { useFocusTrap } from '@/composables/useFocusTrap'
 
 const props = withDefaults(defineProps<{ open: boolean; title?: string; wide?: boolean }>(), {
   title: '',
@@ -10,6 +11,8 @@ const props = withDefaults(defineProps<{ open: boolean; title?: string; wide?: b
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement | null>(null)
 let previousOverflow = ''
+
+useFocusTrap(() => panel.value, toRef(props, 'open'))
 
 function onKey(event: KeyboardEvent) {
   if (event.key === 'Escape') emit('close')

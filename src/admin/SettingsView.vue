@@ -169,6 +169,24 @@ onMounted(async () => {
               <label for="s-tagline" class="field-label">定位语（≤ 20 字）</label>
               <input id="s-tagline" v-model="draft.profile.tagline" class="input" maxlength="40" placeholder="测试工程师，写代码也写测试用例。" />
             </div>
+            <div class="md:col-span-2">
+              <label for="s-intro" class="field-label">首页简介</label>
+              <textarea
+                id="s-intro"
+                v-model="draft.profile.intro"
+                class="textarea !min-h-[72px]"
+                maxlength="200"
+                placeholder="留空则使用内置介绍文案"
+              />
+            </div>
+            <div>
+              <label for="s-focus" class="field-label">首页 FOCUS</label>
+              <input id="s-focus" v-model="draft.profile.focus" class="input" placeholder="功能 · 接口 · 自动化" />
+            </div>
+            <div>
+              <label for="s-honor" class="field-label">首页 HONOR</label>
+              <input id="s-honor" v-model="draft.profile.honor" class="input" placeholder="国赛二等奖 ×2" />
+            </div>
             <div>
               <label for="s-role" class="field-label">角色</label>
               <input id="s-role" v-model="draft.profile.role" class="input" placeholder="测试工程师" />

@@ -4,11 +4,13 @@ import { FlaskConical } from 'lucide-vue-next'
 import { listWorks } from '@/api/works'
 import { parseAppMeta, type WorkWithTags } from '@/db/types'
 import { applySeo } from '@/lib/seo'
+import { useSiteStore } from '@/stores/site'
 import { formatCompact } from '@/lib/utils'
 import PageContainer from '@/components/PageContainer.vue'
 import AppCard from '@/components/AppCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
+const site = useSiteStore()
 const apps = ref<WorkWithTags[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -65,7 +67,7 @@ async function load() {
 
 onMounted(() => {
   applySeo({
-    title: '测试过的 App · 张福建',
+    title: `测试过的 App · ${site.profile.name || '张福建'}`,
     description: '测试履历：被测 App、测试类型、覆盖范围、用例数、缺陷分布与结论。',
   })
   load()

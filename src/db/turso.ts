@@ -1,7 +1,7 @@
 import type { Client } from '@libsql/client/web'
 import schemaSql from './schema.sql?raw'
 import { seedDatabase } from './seed'
-import type { DbAdapter } from './types'
+import type { DbAdapter, DbStatement } from './types'
 
 function splitStatements(sql: string): string[] {
   return sql
@@ -55,5 +55,12 @@ export class TursoAdapter implements DbAdapter {
 
   async run(sql: string, params: unknown[] = []): Promise<void> {
     await this.ready.execute({ sql, args: params as never[] })
+  }
+
+  async batch(statements: DbStatement[]): Promise<void> {
+    if (!statements.length) return
+    await this.ready.batch(
+      statements.map((statement) => ({ sql: statement.sql, args: (statement.params ?? []) as never[] })),
+    )
   }
 }

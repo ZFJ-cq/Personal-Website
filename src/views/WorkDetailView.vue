@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -106,6 +106,8 @@ async function load(slug: string) {
 
     related.value = await getRelatedWorks(found, 3).catch(() => [])
     progress.value = 0
+    await nextTick()
+    observeHeadings()
   } catch (err) {
     error.value = (err as Error).message
   } finally {
@@ -131,20 +133,43 @@ function scrollTo(id: string) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-function onScroll() {
+let rafId = 0
+let headingObserver: IntersectionObserver | null = null
+
+function updateProgress() {
   const el = document.querySelector<HTMLElement>('[data-article]')
   if (!el) return
   const start = el.offsetTop - 140
   const height = el.offsetHeight - window.innerHeight + 140
   const ratio = height > 0 ? (window.scrollY - start) / height : 0
   progress.value = Math.min(1, Math.max(0, ratio))
+}
 
-  let current = ''
-  for (const item of toc.value) {
-    const heading = document.getElementById(item.id)
-    if (heading && heading.getBoundingClientRect().top <= 150) current = item.id
-  }
-  activeHeading.value = current
+function onScroll() {
+  if (rafId) return
+  rafId = requestAnimationFrame(() => {
+    rafId = 0
+    updateProgress()
+  })
+}
+
+/** 用 IntersectionObserver 跟踪当前标题，避免滚动时逐条读取布局 */
+function observeHeadings() {
+  headingObserver?.disconnect()
+  const root = document.querySelector('[data-article]')
+  if (!root) return
+  const headings = Array.from(root.querySelectorAll<HTMLElement>('h2[id], h3[id]'))
+  if (!headings.length) return
+  headingObserver = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      if (visible[0]) activeHeading.value = visible[0].target.id
+    },
+    { rootMargin: '-120px 0px -65% 0px', threshold: 0 },
+  )
+  for (const heading of headings) headingObserver.observe(heading)
 }
 
 watch(
@@ -162,6 +187,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll)
+  if (rafId) cancelAnimationFrame(rafId)
+  headingObserver?.disconnect()
   setJsonLd(null)
 })
 </script>

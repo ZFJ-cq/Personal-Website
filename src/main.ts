@@ -8,4 +8,9 @@ import { initTheme } from './composables/useTheme'
 
 initTheme()
 
-createApp(App).use(createPinia()).use(router).mount('#app')
+const app = createApp(App)
+app.config.errorHandler = (error, _instance, info) => {
+  console.error(`[zf] 渲染异常（${info}）`, error)
+}
+
+app.use(createPinia()).use(router).mount('#app')
