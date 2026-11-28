@@ -19,11 +19,11 @@ let initPromise: Promise<DbAdapter> | null = null
 export function readTursoConfig(): { url: string; token: string } {
   try {
     return {
-      url: localStorage.getItem(TURSO_URL_KEY) || '',
+      url: localStorage.getItem(TURSO_URL_KEY) || import.meta.env.VITE_TURSO_URL || '',
       token: localStorage.getItem(TURSO_TOKEN_KEY) || '',
     }
   } catch {
-    return { url: '', token: '' }
+    return { url: import.meta.env.VITE_TURSO_URL || '', token: '' }
   }
 }
 

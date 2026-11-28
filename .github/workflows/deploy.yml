@@ -56,6 +56,8 @@ jobs:
         env:
           VITE_ADMIN_PASS_HASH: ${{ vars.VITE_ADMIN_PASS_HASH }}
           VITE_GH_REPO: ${{ vars.VITE_GH_REPO || github.repository }}
+          # 只公开数据库地址，Token 不进入构建产物
+          VITE_TURSO_URL: ${{ vars.VITE_TURSO_URL }}
           # 只有显式开启时才把发布 Token 打进前端；公开站点默认关闭，避免泄露
           VITE_GH_TOKEN: ${{ vars.ALLOW_BROWSER_PUBLISH == 'true' && secrets.GH_PUBLISH_TOKEN || '' }}
           VITE_GH_BRANCH: main

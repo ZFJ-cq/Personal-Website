@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { Cloud, Database, Eye, EyeOff, HardDrive, Plug, ShieldCheck, Unplug } from 'lucide-vue-next'
 import { connectTurso, dbMode, disconnectTurso, readTursoConfig } from '@/db'
 import { useSiteStore } from '@/stores/site'
 import { useToast } from '@/composables/useToast'
 import BaseModal from '@/components/BaseModal.vue'
+
+const route = useRoute()
+const needCloud = computed(() => route.query.need === 'turso')
 
 const site = useSiteStore()
 const { toast } = useToast()
@@ -71,8 +75,17 @@ onMounted(() => {
     <header>
       <p class="eyebrow">INFRA / CONNECTION</p>
       <h1 class="mt-2 text-[22px] font-semibold">数据源连接</h1>
-      <p class="mt-1 text-[12.5px] text-dim">本地模式零配置；连接 Turso 后可在任意设备编辑同一份云端 SQLite。</p>
+      <p class="mt-1 text-[12.5px] text-dim">
+        后台内容统一存于 Turso 云端 SQLite。未连接时只能查看本地缓存，改动不会进入线上快照。
+      </p>
     </header>
+
+    <div
+      v-if="needCloud && !isTurso()"
+      class="rounded-lg border border-warn/35 bg-warn/10 px-3 py-2 text-[11.5px] leading-relaxed text-warn"
+    >
+      检测到当前为本地模式。填入 Turso Token 连接云端后，作品、标签、设置与发布才会写入线上数据源。
+    </div>
 
     <div class="grid gap-4 lg:grid-cols-[1fr_320px]">
       <div class="space-y-4">

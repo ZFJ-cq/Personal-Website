@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowUpRight,
@@ -15,7 +15,7 @@ import {
   Smartphone,
   Tags,
 } from 'lucide-vue-next'
-import { dbMode } from '@/db'
+import { dbError, dbMode } from '@/db'
 import { logout } from '@/composables/useAuth'
 import { useSiteStore } from '@/stores/site'
 import { pushToast } from '@/composables/useToast'
@@ -55,6 +55,7 @@ const titleMap: Record<string, string> = {
 }
 
 const title = computed(() => titleMap[String(route.name)] || '内容后台')
+const localMode = computed(() => dbMode.value !== 'turso')
 const revision = computed(() => site.settings.contentRevision || 0)
 const pending = computed(() => Math.max(0, revision.value - publishedRevision.value))
 const publishOpen = ref(false)
@@ -70,11 +71,21 @@ function onPublishKey(event: KeyboardEvent) {
   }
 }
 
+function enforceCloud() {
+  if (!localMode.value) return
+  const name = String(route.name || '')
+  if (name === 'admin-connect' || name === 'admin-data' || name === 'admin-login') return
+  router.replace({ name: 'admin-connect', query: { need: 'turso' } })
+}
+
 onMounted(() => {
   window.addEventListener('keydown', onPublishKey)
   window.addEventListener('zf:publish', openPublish)
   void loadPublishedRevision()
+  enforceCloud()
 })
+
+watch(() => route.name, enforceCloud)
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onPublishKey)
@@ -178,6 +189,22 @@ function doLogout() {
           </button>
         </div>
       </header>
+
+      <div
+        v-if="localMode && route.name !== 'admin-connect'"
+        class="flex flex-wrap items-center justify-between gap-2 border-b border-danger/30 bg-danger/10 px-4 py-1.5 text-[11.5px] text-danger md:px-6"
+      >
+        <span>当前未连接 Turso 云端，改动只保存在本浏览器，不会进入线上。</span>
+        <RouterLink to="/admin/connect" class="font-medium underline underline-offset-2">去连接</RouterLink>
+      </div>
+
+      <div
+        v-if="dbError"
+        class="flex flex-wrap items-center justify-between gap-2 border-b border-danger/30 bg-danger/10 px-4 py-1.5 text-[11px] text-danger md:px-6"
+      >
+        <span>{{ dbError }}</span>
+        <RouterLink to="/admin/connect" class="font-medium underline underline-offset-2">检查连接</RouterLink>
+      </div>
 
       <div
         v-if="pending"
