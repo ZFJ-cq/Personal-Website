@@ -16,7 +16,8 @@ import {
 } from 'lucide-vue-next'
 import { getRelatedWorks, getSlugRedirect, getWorkDetail } from '@/api/works'
 import type { WorkDetail, WorkWithTags } from '@/db/types'
-import { LINK_TYPE_LABEL, STATUS_LABEL, parseWorkMeta } from '@/db/types'
+import { LINK_TYPE_LABEL, PROFILE_FALLBACK, STATUS_LABEL, parseWorkMeta } from '@/db/types'
+import { useSiteStore } from '@/stores/site'
 import { applySeo, setJsonLd } from '@/lib/seo'
 import { copyText, formatDate, monthRange } from '@/lib/utils'
 import { extractToc, type TocItem } from '@/lib/markdown'
@@ -31,7 +32,9 @@ import WorkCard from '@/components/WorkCard.vue'
 
 const route = useRoute()
 const router = useRouter()
+const site = useSiteStore()
 const { toast } = useToast()
+const authorName = computed(() => site.profile.name || PROFILE_FALLBACK.name)
 
 const detail = ref<WorkDetail | null>(null)
 const related = ref<WorkWithTags[]>([])
@@ -87,7 +90,7 @@ async function load(slug: string) {
     const tagNames = found.tags.map((t) => t.name).join('、')
     const description = plainText(found.subtitle || found.summary).slice(0, 150)
     applySeo({
-      title: `${found.title} · 张福建`,
+      title: `${found.title} · ${authorName.value}`,
       description: description || `${found.title} — 作品档案`,
       image: found.cover_url || undefined,
       type: 'article',
@@ -99,7 +102,7 @@ async function load(slug: string) {
       description,
       image: found.cover_url || undefined,
       keywords: tagNames,
-      author: { '@type': 'Person', name: '张福建' },
+      author: { '@type': 'Person', name: authorName.value },
       datePublished: found.started_at || undefined,
       dateModified: found.updated_at,
     })

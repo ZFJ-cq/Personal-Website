@@ -331,7 +331,14 @@
       "email": "3380447383@qq.com",
       "location": "重庆",
       "since": 2024,
-      "availability": "求职中 · 质量保障方向"
+      "availability": "求职中 · 质量保障方向",
+      "phone": "191-2359-0785",
+      "school": "重庆移通学院",
+      "major": "计算机科学与技术",
+      "degree": "本科",
+      "schoolPeriod": "2021.09 — 2025.06",
+      "gradYear": "2025 届",
+      "copyrightSince": 2025
     },
     "social": [
       { "platform": "邮箱", "label": "3380447383@qq.com", "url": "mailto:3380447383@qq.com", "icon": "mail" }

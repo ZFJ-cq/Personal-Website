@@ -1,10 +1,19 @@
 <script setup lang="ts">
+import { watchEffect } from 'vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import { useContentRefresh } from '@/composables/useContentRefresh'
+import { useSiteStore } from '@/stores/site'
+import { setSiteName } from '@/lib/seo'
+
+const site = useSiteStore()
 
 useContentRefresh()
+
+watchEffect(() => {
+  setSiteName(site.profile.name ? `${site.profile.name} · 技术档案` : '技术档案')
+})
 </script>
 
 <template>

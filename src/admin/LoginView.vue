@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole } from 'lucide-vue-next'
 import { login, lockedUntil } from '@/composables/useAuth'
+import { PROFILE_FALLBACK, profileMonogram } from '@/db/types'
+import { useSiteStore } from '@/stores/site'
 
 const route = useRoute()
 const router = useRouter()
+const site = useSiteStore()
+const monogram = computed(() => profileMonogram(site.profile))
 const password = ref('')
 const show = ref(false)
 const loading = ref(false)
@@ -40,8 +44,12 @@ async function submit() {
   }
 }
 
+watchEffect(() => {
+  document.title = `后台登录 · ${site.profile.name || PROFILE_FALLBACK.name}`
+})
+
 onMounted(() => {
-  document.title = '后台登录 · 张福建'
+  void site.load()
   timer = setInterval(() => {
     now.value = Date.now()
   }, 1000)
@@ -67,7 +75,7 @@ onBeforeUnmount(() => {
         aria-hidden="true"
       />
       <div class="relative flex items-center gap-2.5">
-        <span class="grid h-9 w-9 place-items-center rounded-[9px] border border-primary/40 bg-primary/10 text-[12px] font-semibold text-primary">ZF</span>
+        <span class="grid h-9 w-9 place-items-center rounded-[9px] border border-primary/40 bg-primary/10 text-[12px] font-semibold text-primary">{{ monogram }}</span>
         <span class="eyebrow">CONTENT OPERATIONS</span>
       </div>
 
@@ -101,7 +109,7 @@ onBeforeUnmount(() => {
       <div class="mx-auto w-full max-w-[360px]">
         <div class="flex items-center justify-between lg:hidden">
           <div class="flex items-center gap-2">
-            <span class="grid h-8 w-8 place-items-center rounded-[8px] border border-primary/40 bg-primary/10 text-[11px] font-semibold text-primary">ZF</span>
+            <span class="grid h-8 w-8 place-items-center rounded-[8px] border border-primary/40 bg-primary/10 text-[11px] font-semibold text-primary">{{ monogram }}</span>
             <span class="text-[13.5px] font-medium">内容后台</span>
           </div>
           <RouterLink to="/" class="text-[11.5px] text-dim hover:text-ink">返回前台</RouterLink>

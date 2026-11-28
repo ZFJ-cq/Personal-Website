@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { Menu, Moon, Search, Sun, X } from 'lucide-vue-next'
 import { useSiteStore } from '@/stores/site'
+import { PROFILE_FALLBACK, profileMonogram } from '@/db/types'
 import { useTheme } from '@/composables/useTheme'
 import { useFocusTrap } from '@/composables/useFocusTrap'
 
@@ -23,7 +24,8 @@ const nav = [
   { label: '简历', to: '/resume' },
 ]
 
-const name = computed(() => site.profile.name || '张福建')
+const name = computed(() => site.profile.name || PROFILE_FALLBACK.name)
+const monogram = computed(() => profileMonogram(site.profile))
 
 function isActive(to: string): boolean {
   if (to === '/') return route.path === '/'
@@ -84,7 +86,7 @@ onBeforeUnmount(() => {
         <span
           class="grid h-8 w-8 place-items-center rounded-[9px] border border-primary/35 bg-gradient-to-br from-primary/25 to-primary/5 text-[12px] font-semibold tracking-tight text-primary shadow-[0_1px_0_rgba(255,255,255,0.08)_inset] transition-colors group-hover:border-primary/60"
         >
-          ZF
+          {{ monogram }}
         </span>
         <span class="leading-none">
           <span class="font-display block text-[16px] tracking-tight">{{ name }}</span>
@@ -175,7 +177,7 @@ onBeforeUnmount(() => {
               <Moon v-else :size="16" />
               {{ theme === 'dark' ? '切换到浅色' : '切换到深色' }}
             </button>
-            <p class="eyebrow text-[9px]">ZF / ARCHIVE · {{ new Date().getFullYear() }}</p>
+            <p class="eyebrow text-[9px]">{{ monogram }} / ARCHIVE · {{ new Date().getFullYear() }}</p>
           </div>
         </aside>
       </div>

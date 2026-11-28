@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Search, SlidersHorizontal, X } from 'lucide-vue-next'
 import { listCategories, listTags, listWorks } from '@/api/works'
 import type { Tag, WorkWithTags } from '@/db/types'
+import { PROFILE_FALLBACK } from '@/db/types'
 import { applySeo } from '@/lib/seo'
 import { useSiteStore } from '@/stores/site'
 import { trackSearch } from '@/analytics/collect'
@@ -101,11 +102,11 @@ async function load() {
 }
 
 onMounted(() => {
-  const name = site.profile.name || '张福建'
+  const name = site.profile.name || PROFILE_FALLBACK.name
   applySeo({
     title: `作品集 · ${name}`,
     description:
-      site.settings.seo.description || '做过的项目与产品：多端 HLS-P2P 播放器、测试用例平台、短剧离线缓存、接口 Mock 工具。',
+      site.settings.seo.description || site.profile.tagline || '做过的项目与产品归档，含背景、方案与结果。',
   })
   load()
 })

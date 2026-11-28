@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { ArrowUpRight, Award, Briefcase, GraduationCap } from 'lucide-vue-next'
 import { listWorks } from '@/api/works'
-import { SKILLS, parseAppMeta, type WorkWithTags } from '@/db/types'
+import { PROFILE_FALLBACK, SKILLS, parseAppMeta, type WorkWithTags } from '@/db/types'
 import { applySeo } from '@/lib/seo'
 import { formatDate, yearsSince } from '@/lib/utils'
 import { useSiteStore } from '@/stores/site'
@@ -15,7 +15,21 @@ const items = ref<WorkWithTags[]>([])
 const loading = ref(true)
 const { refresh } = useReveal()
 
-const years = computed(() => yearsSince(site.profile.since || 2024))
+const profile = computed(() => site.profile)
+const name = computed(() => profile.value.name || PROFILE_FALLBACK.name)
+const school = computed(() => profile.value.school || PROFILE_FALLBACK.school)
+const major = computed(() => profile.value.major || PROFILE_FALLBACK.major)
+const degree = computed(() => profile.value.degree || PROFILE_FALLBACK.degree)
+const gradYear = computed(() => profile.value.gradYear || PROFILE_FALLBACK.gradYear)
+const schoolPeriod = computed(() => profile.value.schoolPeriod || '2021.09 — 2025.06')
+const skills = computed(() => (profile.value.skills?.length ? profile.value.skills : SKILLS))
+const intro = computed(
+  () =>
+    profile.value.aboutIntro ||
+    `我是${name.value}，${school.value}${major.value} ${gradYear.value}。做过酒店后台、电商平台与移动 App 的完整测试闭环：写用例、跑流程、提缺陷、跟回归。也写 Vue，能从代码层判断前端缺陷。`,
+)
+
+const years = computed(() => yearsSince(profile.value.since || 2024))
 
 const timeline = computed(() => {
   const list = items.value
@@ -43,13 +57,13 @@ const timeline = computed(() => {
   return Array.from(groups.entries()).map(([year, entries]) => ({ year, entries }))
 })
 
-const experiences = [
+const experiences = computed(() => [
   {
     icon: GraduationCap,
     label: '教育背景',
-    title: '重庆移通学院 · 计算机科学与技术',
-    meta: '本科 · 2021 — 2025',
-    lines: ['2025 届优秀毕业生', '专业方向：软件测试与质量保障'],
+    title: `${school.value} · ${major.value}`,
+    meta: `${degree.value} · ${schoolPeriod.value}`,
+    lines: [`${gradYear.value}优秀毕业生`, '专业方向：软件测试与质量保障'],
   },
   {
     icon: Briefcase,
@@ -62,15 +76,15 @@ const experiences = [
       'Fiddler 抓包定位前后端问题，输出修复建议',
     ],
   },
-]
+])
 
-const honors = [
+const honors = computed(() => [
   { title: '中国机器人及人工智能大赛 · 智能驾驶赛', meta: '国家级二等奖 / 重庆赛区二等奖 · 2021—2022' },
   { title: '优秀学生奖学金 三等奖（2 次）', meta: '2021—2022 · 2024—2025' },
-  { title: '「自立自强先进个人」· 2025 届优秀毕业生', meta: '重庆移通学院 · 2024—2025' },
+  { title: `「自立自强先进个人」· ${gradYear.value}优秀毕业生`, meta: `${school.value} · 2024—2025` },
   { title: '人工智能训练师（国家级）· 普通话三级甲等', meta: '2021—2022' },
   { title: '人形机器人 / 智能感知系统（嵌入式）实习实训', meta: '结业证书 · 2023—2024' },
-]
+])
 
 const principles = [
   {
@@ -106,8 +120,8 @@ async function load() {
 
 onMounted(() => {
   applySeo({
-    title: '关于 · 张福建',
-    description: '重庆移通学院计算机科学与技术 2025 届。测试工程师：黑盒 / 白盒测试、Selenium 自动化、接口与性能验证。',
+    title: `关于 · ${name.value}`,
+    description: `${school.value}${major.value} ${gradYear.value}。测试工程师：黑盒 / 白盒测试、Selenium 自动化、接口与性能验证。`,
   })
   site.load()
   load()
@@ -126,14 +140,13 @@ onMounted(() => {
         </div>
         <h1 class="display-lg mt-6 max-w-[20ch]">把「能跑」变成「可靠」。</h1>
         <p class="mt-6 max-w-[60ch] text-[15px] leading-relaxed text-dim md:text-[16px]">
-          我是{{ site.profile.name }}，重庆移通学院计算机科学与技术 2025 届。做过酒店后台、电商平台与移动 App
-          的完整测试闭环：写用例、跑流程、提缺陷、跟回归。也写 Vue，能从代码层判断前端缺陷。
+          {{ intro }}
         </p>
         <div class="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[12.5px] text-dim">
           <span class="inline-flex items-center gap-1.5">
             <span class="h-1.5 w-1.5 rounded-full bg-success" />{{ site.profile.availability || '求职中' }}
           </span>
-          <span>{{ site.profile.location || '重庆' }}</span>
+          <span>{{ site.profile.location || PROFILE_FALLBACK.location }}</span>
           <a v-if="site.profile.email" :href="`mailto:${site.profile.email}`" class="link-underline hover:text-primary">
             {{ site.profile.email }}
           </a>
@@ -227,7 +240,7 @@ onMounted(() => {
     <section class="section">
       <SectionHeading index="03 / CAPABILITY" title="技能矩阵" />
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div v-for="(group, i) in SKILLS" :key="group.group" class="card card-hover p-5">
+        <div v-for="(group, i) in skills" :key="group.group" class="card card-hover p-5">
           <div class="flex items-baseline justify-between">
             <h3 class="font-display text-[18px]">{{ group.group }}</h3>
             <span class="num text-[10px] text-dim">0{{ i + 1 }}</span>

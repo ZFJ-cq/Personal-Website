@@ -3,12 +3,14 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ArrowRight, Search } from 'lucide-vue-next'
 import { listWorks } from '@/api/works'
-import type { WorkWithTags } from '@/db/types'
+import { PROFILE_FALLBACK, type WorkWithTags } from '@/db/types'
 import { applySeo } from '@/lib/seo'
+import { useSiteStore } from '@/stores/site'
 import PageContainer from '@/components/PageContainer.vue'
 import WorkCard from '@/components/WorkCard.vue'
 
 const route = useRoute()
+const site = useSiteStore()
 const works = ref<WorkWithTags[]>([])
 const apps = ref<WorkWithTags[]>([])
 const query = ref('')
@@ -27,7 +29,10 @@ const results = computed(() => {
 })
 
 onMounted(async () => {
-  applySeo({ title: '页面未找到 · 张福建', description: '这个地址没有对应内容，回到首页或搜索作品。' })
+  applySeo({
+    title: `页面未找到 · ${site.profile.name || PROFILE_FALLBACK.name}`,
+    description: '这个地址没有对应内容，回到首页或搜索作品。',
+  })
   try {
     const [workList, appList] = await Promise.all([
       listWorks({ kind: 'work', limit: 3 }),

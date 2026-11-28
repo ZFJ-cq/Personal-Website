@@ -15,7 +15,7 @@ import {
   UserRound,
 } from 'lucide-vue-next'
 import type { SettingKey } from '@/db/defaults'
-import type { SiteSettings } from '@/db/types'
+import { SKILLS, type SiteSettings, type SkillsGroup } from '@/db/types'
 import { useSiteStore } from '@/stores/site'
 import { useToast } from '@/composables/useToast'
 import { setTheme } from '@/composables/useTheme'
@@ -39,6 +39,30 @@ const saving = ref(false)
 const draft = reactive<SiteSettings>(JSON.parse(JSON.stringify(site.settings)))
 const presets = ['#3b82f6', '#6366f1', '#14b8a6', '#f59e0b', '#ef4444', '#a855f7']
 const noTrack = ref(isNoTrack())
+
+/** 技能矩阵用「分组: 项1, 项2」的纯文本编辑，保存时解析回结构 */
+const skillsText = computed({
+  get: () =>
+    (draft.profile.skills?.length ? draft.profile.skills : SKILLS)
+      .map((group) => `${group.group}: ${group.items.join(', ')}`)
+      .join('\n'),
+  set: (value: string) => {
+    const groups: SkillsGroup[] = []
+    for (const raw of value.split('\n')) {
+      const line = raw.trim()
+      if (!line) continue
+      const index = line.search(/[:：]/)
+      const group = (index >= 0 ? line.slice(0, index) : line).trim()
+      if (!group) continue
+      const items = (index >= 0 ? line.slice(index + 1) : '')
+        .split(/[,，]/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+      groups.push({ group, items })
+    }
+    draft.profile.skills = groups
+  },
+})
 const moduleLabels: Record<keyof SiteSettings['modules'], string> = {
   stats: '数字条',
   featured: '精选作品',
@@ -202,6 +226,62 @@ onMounted(async () => {
             <div>
               <label for="s-location" class="field-label">城市</label>
               <input id="s-location" v-model="draft.profile.location" class="input" />
+            </div>
+            <div>
+              <label for="s-phone" class="field-label">电话（仅简历页）</label>
+              <input id="s-phone" v-model="draft.profile.phone" class="input num" placeholder="留空则简历不显示电话" />
+            </div>
+            <div>
+              <label for="s-school" class="field-label">学校</label>
+              <input id="s-school" v-model="draft.profile.school" class="input" placeholder="留空使用内置文案" />
+            </div>
+            <div>
+              <label for="s-major" class="field-label">专业</label>
+              <input id="s-major" v-model="draft.profile.major" class="input" placeholder="留空使用内置文案" />
+            </div>
+            <div>
+              <label for="s-degree" class="field-label">学历</label>
+              <input id="s-degree" v-model="draft.profile.degree" class="input" placeholder="本科" />
+            </div>
+            <div>
+              <label for="s-gradyear" class="field-label">毕业届别</label>
+              <input id="s-gradyear" v-model="draft.profile.gradYear" class="input" placeholder="2025 届" />
+            </div>
+            <div class="md:col-span-2">
+              <label for="s-schoolperiod" class="field-label">在校时间</label>
+              <input id="s-schoolperiod" v-model="draft.profile.schoolPeriod" class="input num" placeholder="2021.09 — 2025.06" />
+            </div>
+            <div class="md:col-span-2">
+              <label for="s-aboutintro" class="field-label">关于页介绍</label>
+              <textarea
+                id="s-aboutintro"
+                v-model="draft.profile.aboutIntro"
+                class="textarea !min-h-[80px]"
+                maxlength="220"
+                placeholder="留空则按学校 / 专业 / 届别自动生成"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label for="s-skills" class="field-label">技能矩阵</label>
+              <textarea
+                id="s-skills"
+                v-model="skillsText"
+                class="textarea !min-h-[120px] num !text-[12px]"
+                placeholder="每行一组：测试方法: 等价类, 边界值"
+              />
+              <p class="mt-1.5 text-[11px] text-dim">每行一组，格式「分组: 项1, 项2」；留空使用内置技能矩阵。</p>
+            </div>
+            <div>
+              <label for="s-copyright" class="field-label">版权起始年</label>
+              <input
+                id="s-copyright"
+                v-model.number="draft.profile.copyrightSince"
+                type="number"
+                min="1990"
+                max="2100"
+                class="input num"
+                placeholder="留空只显示当前年"
+              />
             </div>
             <div>
               <label for="s-resume" class="field-label">简历链接</label>

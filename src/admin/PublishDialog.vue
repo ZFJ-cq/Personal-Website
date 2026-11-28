@@ -340,7 +340,7 @@ onBeforeUnmount(clearTimer)
           <p class="mt-1.5 text-[11.5px] leading-relaxed text-dim">
             构建环境写入以下变量后重新部署，或在 Actions 里自动推导：
           </p>
-          <pre class="num mt-2 overflow-x-auto rounded-lg border border-line bg-bg/60 p-3 text-[10.5px] leading-relaxed">VITE_GH_REPO=ZFJ-cq/Personal-Website
+          <pre class="num mt-2 overflow-x-auto rounded-lg border border-line bg-bg/60 p-3 text-[10.5px] leading-relaxed">VITE_GH_REPO={{ cfg.repo || 'owner/repo' }}
 VITE_GH_TOKEN=    # 线上留空，部署后在本弹窗临时填入</pre>
         </template>
       </div>

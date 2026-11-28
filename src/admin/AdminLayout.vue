@@ -16,6 +16,7 @@ import {
   Tags,
 } from 'lucide-vue-next'
 import { dbError, dbMode } from '@/db'
+import { profileMonogram } from '@/db/types'
 import { logout } from '@/composables/useAuth'
 import { useSiteStore } from '@/stores/site'
 import { pushToast } from '@/composables/useToast'
@@ -25,6 +26,7 @@ import PublishDialog from '@/admin/PublishDialog.vue'
 const route = useRoute()
 const router = useRouter()
 const site = useSiteStore()
+const monogram = computed(() => profileMonogram(site.profile))
 
 const nav = [
   { label: '概览', to: '/admin', name: 'admin-dashboard', icon: LayoutDashboard },
@@ -109,7 +111,7 @@ function doLogout() {
     <aside class="fixed inset-y-0 left-0 z-40 hidden w-[228px] flex-col border-r border-line bg-surface/50 lg:flex">
       <RouterLink to="/admin" class="flex items-center gap-2.5 border-b border-line px-5 py-4">
         <span class="grid h-8 w-8 place-items-center rounded-[8px] border border-primary/40 bg-primary/10 text-[11px] font-semibold text-primary">
-          ZF
+          {{ monogram }}
         </span>
         <span class="leading-tight">
           <span class="block text-[13.5px] font-medium">内容后台</span>
@@ -157,7 +159,7 @@ function doLogout() {
       <header class="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-line bg-bg/85 px-4 backdrop-blur md:px-6">
         <div class="flex items-center gap-2.5">
           <RouterLink to="/admin" class="grid h-7 w-7 place-items-center rounded-[7px] border border-primary/40 bg-primary/10 text-[10px] font-semibold text-primary lg:hidden">
-            ZF
+            {{ monogram }}
           </RouterLink>
           <h1 class="text-[14px] font-medium">{{ title }}</h1>
           <button

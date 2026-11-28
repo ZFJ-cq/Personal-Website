@@ -2,12 +2,19 @@
 import { computed } from 'vue'
 import { ArrowUpRight, Mail } from 'lucide-vue-next'
 import { useSiteStore } from '@/stores/site'
+import { PROFILE_FALLBACK, profileMonogram } from '@/db/types'
 import { formatDate } from '@/lib/utils'
 
 const site = useSiteStore()
 
 const year = new Date().getFullYear()
-const name = computed(() => site.profile.name || '张福建')
+const name = computed(() => site.profile.name || PROFILE_FALLBACK.name)
+const monogram = computed(() => profileMonogram(site.profile))
+const copyright = computed(() => {
+  const since = site.profile.copyrightSince
+  const range = since && since > 1900 && since < year ? `${since}–${year}` : String(year)
+  return `© ${range} ${name.value}`
+})
 const updated = computed(() => {
   const raw = site.settings.lastPublishedAt
   if (!raw) return '本地数据'
@@ -31,7 +38,7 @@ const links = [
             <span
               class="grid h-8 w-8 place-items-center rounded-[8px] border border-primary/40 bg-primary/10 text-[12px] font-semibold text-primary"
             >
-              ZF
+              {{ monogram }}
             </span>
             <span class="font-display text-[17px]">{{ name }}</span>
           </div>
@@ -92,7 +99,7 @@ const links = [
           <p class="num flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>DATA UPDATED {{ updated }}</span>
             <span class="hidden h-3 w-px bg-line md:block" />
-            <span>© {{ year }} {{ name }}</span>
+            <span>{{ copyright }}</span>
           </p>
         </div>
       </div>

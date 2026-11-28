@@ -5,7 +5,14 @@ interface SeoInput {
   type?: 'website' | 'article'
 }
 
-const SITE_NAME = '张福建 · 技术档案'
+let siteName = '技术档案'
+
+/** 站点名由个人资料驱动；设置后同步更新已写入的 og:site_name */
+export function setSiteName(name: string) {
+  siteName = name || '技术档案'
+  const el = document.head.querySelector<HTMLMetaElement>('meta[property="og:site_name"]')
+  if (el) el.setAttribute('content', siteName)
+}
 
 function truncate(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
@@ -59,7 +66,7 @@ export function applySeo(input: SeoInput) {
   upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image')
 
   upsertMeta('meta[property="og:type"]', 'property', 'og:type', input.type || 'website')
-  upsertMeta('meta[property="og:site_name"]', 'property', 'og:site_name', SITE_NAME)
+  upsertMeta('meta[property="og:site_name"]', 'property', 'og:site_name', siteName)
   upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonicalUrl())
 
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')

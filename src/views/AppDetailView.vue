@@ -3,7 +3,8 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, CalendarRange, Copy, ExternalLink, Layers, MonitorSmartphone, Rocket, ShieldCheck } from 'lucide-vue-next'
 import { getRelatedWorks, getSlugRedirect, getWorkDetail } from '@/api/works'
-import { CONCLUSION_LABEL, parseAppMeta, type WorkDetail, type WorkWithTags } from '@/db/types'
+import { CONCLUSION_LABEL, PROFILE_FALLBACK, parseAppMeta, type WorkDetail, type WorkWithTags } from '@/db/types'
+import { useSiteStore } from '@/stores/site'
 import { applySeo, setJsonLd } from '@/lib/seo'
 import { copyText, formatDate, formatNumber, monthRange } from '@/lib/utils'
 import { trackOutbound } from '@/analytics/collect'
@@ -15,7 +16,9 @@ import AppCard from '@/components/AppCard.vue'
 
 const route = useRoute()
 const router = useRouter()
+const site = useSiteStore()
 const { toast } = useToast()
+const authorName = computed(() => site.profile.name || PROFILE_FALLBACK.name)
 
 const detail = ref<WorkDetail | null>(null)
 const related = ref<WorkWithTags[]>([])
@@ -72,7 +75,7 @@ async function load(slug: string) {
       operatingSystem: meta.value.platforms.join(', ') || undefined,
       softwareVersion: meta.value.version || undefined,
       description,
-      author: { '@type': 'Person', name: '张福建' },
+      author: { '@type': 'Person', name: authorName.value },
     })
     related.value = (await getRelatedWorks(found, 3).catch(() => [])).filter((w) => w.kind === 'app')
   } catch (err) {

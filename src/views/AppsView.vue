@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { FlaskConical } from 'lucide-vue-next'
 import { listWorks } from '@/api/works'
-import { parseAppMeta, type WorkWithTags } from '@/db/types'
+import { parseAppMeta, PROFILE_FALLBACK, type WorkWithTags } from '@/db/types'
 import { applySeo } from '@/lib/seo'
 import { useSiteStore } from '@/stores/site'
 import { formatCompact } from '@/lib/utils'
@@ -67,7 +67,7 @@ async function load() {
 
 onMounted(() => {
   applySeo({
-    title: `测试过的 App · ${site.profile.name || '张福建'}`,
+    title: `测试过的 App · ${site.profile.name || PROFILE_FALLBACK.name}`,
     description: '测试履历：被测 App、测试类型、覆盖范围、用例数、缺陷分布与结论。',
   })
   load()

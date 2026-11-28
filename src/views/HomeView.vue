@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { ArrowRight, ArrowUpRight, Download, Mail, MapPin } from 'lucide-vue-next'
 import { listWorks } from '@/api/works'
-import { SKILLS, type WorkWithTags } from '@/db/types'
+import { PROFILE_FALLBACK, SKILLS, type WorkWithTags } from '@/db/types'
 import { useSiteStore } from '@/stores/site'
 import { applySeo, setJsonLd } from '@/lib/seo'
 import { formatCompact, yearsSince } from '@/lib/utils'
@@ -23,8 +23,24 @@ const { refresh } = useReveal()
 
 const profile = computed(() => site.profile)
 const years = computed(() => yearsSince(profile.value.since || 2024))
-const heroName = computed(() => profile.value.name || '张福建')
-const role = computed(() => profile.value.role || '测试工程师')
+const heroName = computed(() => profile.value.name || PROFILE_FALLBACK.name)
+const role = computed(() => profile.value.role || PROFILE_FALLBACK.role)
+const schoolLine = computed(
+  () => `${profile.value.school || PROFILE_FALLBACK.school}${profile.value.major || PROFILE_FALLBACK.major}`,
+)
+const introFallback = computed(
+  () =>
+    `${schoolLine.value} ${profile.value.gradYear || PROFILE_FALLBACK.gradYear}。做过酒店后台、电商平台与移动 App 的完整测试闭环；也写 Vue，能从代码层判断前端缺陷。这里只放具体数字，不堆形容词。`,
+)
+const revision = computed(() => {
+  const raw = site.settings.lastPublishedAt
+  const date = raw ? new Date(raw.replace(' ', 'T')) : new Date()
+  if (Number.isNaN(date.getTime())) return 'REV. —'
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const no = String(site.settings.contentRevision || 0).padStart(3, '0')
+  return `REV. ${date.getFullYear()}.${month} / ${no}`
+})
+const skills = computed(() => (profile.value.skills?.length ? profile.value.skills : SKILLS))
 
 const stats = computed(() => [
   { value: formatCompact(site.stats.works), label: '公开作品', sub: 'WORKS' },
@@ -114,8 +130,7 @@ onMounted(async () => {
           </p>
           <p class="mt-5 max-w-[48ch] text-[14px] leading-relaxed text-dim md:text-[15px]">
             {{
-              profile.intro ||
-              '重庆移通学院计算机科学与技术 2025 届。做过酒店后台、电商平台与移动 App 的完整测试闭环；也写 Vue，能从代码层判断前端缺陷。这里只放具体数字，不堆形容词。'
+              profile.intro || introFallback
             }}
           </p>
 
@@ -156,7 +171,7 @@ onMounted(async () => {
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="eyebrow">PROFILE SHEET</p>
-                <p class="num mt-1 text-[10px] text-dim">REV. 2026.11 / 001</p>
+                <p class="num mt-1 text-[10px] text-dim">{{ revision }}</p>
               </div>
               <span class="badge badge-done">OPEN</span>
             </div>
@@ -277,7 +292,7 @@ onMounted(async () => {
     <section v-if="site.modules.skills" class="section">
       <SectionHeading index="03 / CAPABILITY" title="能力矩阵" />
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div v-for="(group, i) in SKILLS" :key="group.group" class="card p-5">
+        <div v-for="(group, i) in skills" :key="group.group" class="card p-5">
           <div class="flex items-baseline justify-between">
             <h3 class="font-display text-[18px]">{{ group.group }}</h3>
             <span class="num text-[10px] text-dim">0{{ i + 1 }}</span>

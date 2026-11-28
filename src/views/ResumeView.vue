@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { ArrowLeft, Printer } from 'lucide-vue-next'
+import { PROFILE_FALLBACK } from '@/db/types'
 import { applySeo } from '@/lib/seo'
 import { useSiteStore } from '@/stores/site'
 import PageContainer from '@/components/PageContainer.vue'
 
 const site = useSiteStore()
 const profile = computed(() => site.profile)
-const phone = '191-2359-0785'
+const phone = computed(() => profile.value.phone || '')
+const school = computed(() => profile.value.school || PROFILE_FALLBACK.school)
+const major = computed(() => profile.value.major || PROFILE_FALLBACK.major)
+const degree = computed(() => profile.value.degree || PROFILE_FALLBACK.degree)
+const gradYear = computed(() => profile.value.gradYear || PROFILE_FALLBACK.gradYear)
+const schoolPeriod = computed(() => profile.value.schoolPeriod || '2021.09 — 2025.06')
+const gradYearNumber = computed(() => gradYear.value.match(/\d{4}/)?.[0] || String(new Date().getFullYear()))
 
 const skills = [
   {
@@ -55,14 +62,14 @@ const projects = [
   },
 ]
 
-const honors = [
+const honors = computed(() => [
   '中国机器人及人工智能大赛（国家级）总决赛 · 智能驾驶赛二等奖（2021—2022）',
   '中国机器人及人工智能大赛（省部级）重庆赛区 · 智能驾驶赛二等奖（2021—2022）',
   '优秀学生奖学金三等奖（2 次）· 2021—2022、2024—2025',
-  '重庆移通学院「自立自强先进个人」· 2025 届「优秀毕业生」（2024—2025）',
+  `${school.value}「自立自强先进个人」· ${gradYear.value}「优秀毕业生」（2024—2025）`,
   '人工智能训练师证（国家级）· 普通话三级甲等（2021—2022）',
   '人形机器人实习实训、百科荣创智能感知系统（嵌入式）实习实训结业证书（2023—2024）',
-]
+])
 
 function printPage() {
   window.print()
@@ -71,7 +78,7 @@ function printPage() {
 onMounted(() => {
   applySeo({
     title: `简历 · ${profile.value.name}`,
-    description: `${profile.value.name} 的简历：重庆移通学院计算机科学与技术 2025 届，测试工程师方向，酒店后台、电商平台与移动 App 测试经验。`,
+    description: `${profile.value.name} 的简历：${school.value}${major.value} ${gradYear.value}，测试工程师方向，酒店后台、电商平台与移动 App 测试经验。`,
   })
   site.load()
 })
@@ -96,17 +103,17 @@ onMounted(() => {
 
       <header class="flex flex-col gap-5 pb-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <p class="resume-kicker">RESUME / 2025</p>
+          <p class="resume-kicker">RESUME / {{ gradYearNumber }}</p>
           <h1 class="font-display mt-2 text-[clamp(30px,5vw,44px)] leading-none tracking-tight">
             {{ profile.name }}
           </h1>
           <p class="mt-2.5 text-[13px] opacity-80">求职意向：测试工程师</p>
-          <p class="mt-1 text-[11.5px] opacity-55">重庆移通学院 · 计算机科学与技术（本科）· 2025 届</p>
+          <p class="mt-1 text-[11.5px] opacity-55">{{ school }} · {{ major }}（{{ degree }}）· {{ gradYear }}</p>
         </div>
         <div class="grid gap-1 text-[11.5px] opacity-75 md:text-right">
-          <p class="num">电话　{{ phone }}</p>
+          <p v-if="phone" class="num">电话　{{ phone }}</p>
           <p v-if="profile.email" class="break-anywhere">邮箱　{{ profile.email }}</p>
-          <p>籍贯　{{ profile.location || '重庆' }}</p>
+          <p>籍贯　{{ profile.location || PROFILE_FALLBACK.location }}</p>
           <p class="num">状态　{{ profile.availability || '求职中' }}</p>
         </div>
       </header>
@@ -114,11 +121,11 @@ onMounted(() => {
       <section>
         <h2 class="resume-h">教育背景</h2>
         <div class="mt-2 flex flex-wrap items-baseline justify-between gap-2">
-          <p class="text-[13px] font-semibold">重庆移通学院 · 计算机科学与技术</p>
-          <span class="num text-[10.5px] opacity-60">2021.09 — 2025.06</span>
+          <p class="text-[13px] font-semibold">{{ school }} · {{ major }}</p>
+          <span class="num text-[10.5px] opacity-60">{{ schoolPeriod }}</span>
         </div>
         <p class="mt-1 text-[11.5px] leading-relaxed opacity-75">
-          本科 · 2025 届优秀毕业生 · 在校获优秀学生奖学金三等奖 2 次 · 「自立自强先进个人」。
+          {{ degree }} · {{ gradYear }}优秀毕业生 · 在校获优秀学生奖学金三等奖 2 次 · 「自立自强先进个人」。
         </p>
       </section>
 
@@ -183,7 +190,7 @@ onMounted(() => {
       </div>
 
       <footer class="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-current/15 pt-3 text-[10px] opacity-50">
-        <span>{{ profile.name }} · 测试工程师 · 2025 届</span>
+        <span>{{ profile.name }} · {{ profile.role || PROFILE_FALLBACK.role }}</span>
         <span class="num">PORTFOLIO / {{ profile.email }}</span>
       </footer>
     </article>

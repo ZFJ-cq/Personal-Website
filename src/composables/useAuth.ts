@@ -5,8 +5,8 @@ const FAIL_KEY = 'zf.admin.fails'
 const LOCK_MS = 60_000
 const MAX_FAILS = 5
 
-/** admin123 的 SHA-256；构建时可用 VITE_ADMIN_PASS_HASH 覆盖 */
-const DEFAULT_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
+/** 默认口令的 SHA-256；构建时可用 VITE_ADMIN_PASS_HASH 覆盖，上线请务必设置该变量 */
+const DEFAULT_HASH = 'def9860a0f525a658ad6e579ef8aac6828071bd378eaeac9a5d969d0ad865160'
 
 interface FailState {
   count: number

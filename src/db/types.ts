@@ -90,6 +90,28 @@ export interface AppMeta {
   conclusion_level?: ConclusionLevel
 }
 
+/** 个人资料缺失时的兜底文案，避免页面出现空白 */
+export const PROFILE_FALLBACK = {
+  name: '张福建',
+  school: '重庆移通学院',
+  major: '计算机科学与技术',
+  degree: '本科',
+  gradYear: '2025 届',
+  location: '重庆',
+  role: '测试工程师',
+} as const
+
+/** 站点徽标，优先取英文名首字母缩写，其次取姓名首字 */
+export function profileMonogram(profile: Pick<Profile, 'name' | 'enName'>): string {
+  const en = profile.enName?.trim()
+  if (en) {
+    const parts = en.split(/\s+/).filter(Boolean)
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    return (parts[0].length <= 2 ? parts[0] : parts[0].slice(0, 2)).toUpperCase()
+  }
+  return (profile.name?.trim() || PROFILE_FALLBACK.name).slice(0, 1)
+}
+
 export interface Profile {
   name: string
   enName: string
@@ -107,6 +129,24 @@ export interface Profile {
   focus?: string
   /** 首页档案卡 HONOR 行 */
   honor?: string
+  /** 手机号，仅在简历页展示；留空则隐藏 */
+  phone?: string
+  /** 学校名称，留空使用内置文案 */
+  school?: string
+  /** 专业名称，留空使用内置文案 */
+  major?: string
+  /** 学历，如「本科」 */
+  degree?: string
+  /** 在校时间，如「2021.09 — 2025.06」 */
+  schoolPeriod?: string
+  /** 毕业届别文案，如「2025 届」 */
+  gradYear?: string
+  /** 页脚版权起始年；留空只显示当前年 */
+  copyrightSince?: number
+  /** 关于页自我介绍，留空使用内置文案 */
+  aboutIntro?: string
+  /** 关于页技能矩阵，留空使用内置 SKILLS */
+  skills?: SkillsGroup[]
 }
 
 export interface SocialLink {
