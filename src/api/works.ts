@@ -265,7 +265,8 @@ export async function createWork(input: WorkInput): Promise<number> {
       JSON.stringify(input.meta),
     ],
   )
-  const row = await db().get<{ id: number }>('SELECT last_insert_rowid() AS id')
+  // Turso 走 HTTP，连接不共享 last_insert_rowid；slug 唯一，按它回查 id
+  const row = await db().get<{ id: number }>('SELECT id FROM works WHERE slug = ?', [input.slug])
   const id = row?.id ?? 0
   if (!id) throw new Error('写入失败，未拿到新记录 ID')
   await writeLinks(id, input.links)
